@@ -1,19 +1,22 @@
-# CLI alternative to creating the materialization in the Estuary UI:
+# CLI alternative to creating the materialization in the Estuary UI. Fill in a copy in
+# local/ (gitignored) so your secret and address aren't committed:
+#   mkdir -p local && cp materialize.flow.yaml local/ && cd local
 #   flowctl catalog publish --source materialize.flow.yaml
 materializations:
-  YOUR_PREFIX/jev-classifier:
+  Early_Signal/jev-classifier:
     endpoint:
       connector:
         image: ghcr.io/estuary/materialize-webhook:v1
         config:
           # The classifier's ngrok URL. Must end with a trailing '/'.
-          address: https://YOUR-NGROK-SUBDOMAIN.ngrok-free.app/
+          address: https://stump-agenda-traverse.ngrok-free.dev/
           headers:
             customHeaders:
               - name: x-webhook-secret
-                value: CHANGE_ME   # must equal WEBHOOK_SECRET in .env
+                value: "webhook"   # must equal WEBHOOK_SECRET in .env
     bindings:
-      # The collection created by the jev-app Postgres capture.
-      - source: YOUR_PREFIX/cart_updates
+      # The collection created by the jev-app Postgres capture. Find its exact name with
+      #   flowctl catalog list --collections --prefix YOUR_PREFIX/
+      - source: Early_Signal/jev-app/cart_updates
         resource:
           relativePath: webhook/estuary

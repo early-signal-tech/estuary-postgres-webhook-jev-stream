@@ -14,7 +14,7 @@ DB_PASSWORD = os.getenv('POSTGRES_PASSWORD', "postgres")
 DB_HOST = os.getenv('POSTGRES_HOST', "localhost")
 DB_PORT = os.getenv('POSTGRES_PORT', "5432")
 
-INTERVAL_SECONDS = float(os.getenv('INTERVAL_SECONDS', "5"))
+INTERVAL_SECONDS = float(os.getenv('INTERVAL_SECONDS', "2"))
 # Number of carts being filled at the same time (3 or 4 if not set).
 ACTIVE_ORDERS = min(len(MEALS) - 1, int(os.getenv('ACTIVE_ORDERS', random.choice([3, 4]))))
 # Chance that each added item belongs to the order's meal. Otherwise it's an off-meal

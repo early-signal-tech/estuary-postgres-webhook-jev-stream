@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      INTERVAL_SECONDS: 5
+      INTERVAL_SECONDS: 2
       # ACTIVE_ORDERS: 4          # defaults to a random 3 or 4
       # ON_MEAL_CHANCE: 0.5      # chance each added item belongs to the order's meal
 
@@ -51,8 +51,7 @@ services:
     image: ngrok/ngrok:latest
     container_name: jev-ngrok
     restart: unless-stopped
-    environment:
-      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    env_file: ../.env   # NGROK_AUTHTOKEN, shared with jev-classifier
     command: 'tcp postgres:5432'
     ports:
       - "4040:4040"

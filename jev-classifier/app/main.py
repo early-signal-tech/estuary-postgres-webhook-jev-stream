@@ -9,6 +9,7 @@ import asyncio
 import json
 import logging
 import os
+import re
 from datetime import datetime, timedelta, timezone
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -170,13 +171,21 @@ async def webhook(request: Request, x_webhook_secret: str | None = Header(defaul
     return {"received": len(docs), "queued": queued, "skipped": skipped}
 
 
+def order_number(order: dict[str, Any]) -> tuple[int, str]:
+    # "ord-9" before "ord-10": compare the trailing number, not the string.
+    digits = re.search(r"\d+$", order["order_id"])
+    return (int(digits.group()) if digits else -1, order["order_id"])
+
+
 @app.get("/api/orders")
 def api_orders():
+    # Pick the most recently updated orders, then show them by order id so cards stay put.
+    recent = sorted(
+        orders.values(), key=lambda o: str(o.get("updated_at") or ""), reverse=True,
+    )[:PAGE_ORDERS]
     return {
         "backlog": queue.qsize(),
-        "orders": sorted(
-            orders.values(), key=lambda o: str(o.get("updated_at") or ""), reverse=True,
-        )[:PAGE_ORDERS],
+        "orders": sorted(recent, key=order_number),
     }
 
 

@@ -10,7 +10,7 @@ The datagen keeps 3-4 carts open at once. Each `order_id` is assigned a differen
 (see `datagen/meals.py`): Spaghetti Bolognese, Chicken Stir-Fry, Beef Tacos,
 Caesar Salad with Salmon, or Pancake Breakfast.
 
-Every 5 seconds it picks one open cart, adds 1-3 items, and **inserts a new row**. Each item
+Every 2 seconds it picks one open cart, adds 1-3 items, and **inserts a new row**. Each item
 belongs to the order's meal 50% of the time (`ON_MEAL_CHANCE`). Otherwise it's an off-meal
 item: an ingredient from another meal, or an everyday staple like coffee or paper towels. When a cart has every
 ingredient for its meal, that row has `is_complete = true` and a new `order_id` takes its place.
@@ -42,8 +42,8 @@ the ingredients. The datagen logs show the true meal for each order.
 
 ## Setup
 
-1. Copy `.env.example` to `.env` and set `NGROK_AUTHTOKEN`. ngrok TCP tunnels need a
-   verified ngrok account (with a card on file).
+1. In the repo root, copy `.env.example` to `.env` and set `NGROK_AUTHTOKEN` (it's shared
+   with jev-classifier). ngrok TCP tunnels need a verified ngrok account (with a card on file).
 2. Start the containers: `docker compose up --build -d`
 3. Get the Postgres URL:
    `curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'`
@@ -75,7 +75,7 @@ Set these on the `datagen` service in `docker-compose.yml`:
 
 | env var | default | |
 |---|---|---|
-| `INTERVAL_SECONDS` | `5` | Seconds between rows |
+| `INTERVAL_SECONDS` | `2` | Seconds between rows |
 | `ACTIVE_ORDERS` | random 3 or 4 | Open carts at once (at most 4) |
 | `ON_MEAL_CHANCE` | `0.5` | Chance each added item belongs to the order's meal (lower = noisier carts) |
 

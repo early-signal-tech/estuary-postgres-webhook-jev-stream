@@ -18,7 +18,7 @@ jev-app datagen → Postgres cart_updates → Estuary Postgres capture → colle
 - Each classification is one Jev **Choice** question. The state is `{"cart": ingredients}`,
   and the options are the five meals plus `none`. Jev returns the top meal, its probability,
   and a probability for every option, all of which the page shows.
-- `GET /` is the web page. It refreshes every 2 seconds and shows the 12 most recent orders:
+- `GET /` is the web page. It refreshes every 2 seconds and shows the 12 most recently updated orders, sorted by order id so they don't move around:
   the predicted meal, probability bars for all options, the cart (with the items just
   added highlighted), and how the prediction changed with each update.
 - `GET /api/orders` returns the same data as JSON.
@@ -39,7 +39,7 @@ Behavior worth knowing:
 ### 1. Run the app and the ngrok tunnel
 
 ```bash
-cp .env.example .env      # set TYPESAFE_API_KEY, WEBHOOK_SECRET, NGROK_AUTHTOKEN
+cp ../.env.example ../.env   # once, in the repo root: TYPESAFE_API_KEY, WEBHOOK_SECRET, NGROK_AUTHTOKEN
 docker compose up --build -d
 curl -s http://localhost:4041/api/tunnels | jq -r '.tunnels[0].public_url'
 ```
@@ -91,8 +91,8 @@ To see Estuary's raw requests, use the ngrok inspector at http://localhost:4041.
 
 | env var | default | |
 |---|---|---|
-| `TYPESAFE_API_KEY` | (required) | From https://console.typesafe.ai/ |
-| `WEBHOOK_SECRET` | empty = no check | Must match the `x-webhook-secret` header |
+| `TYPESAFE_API_KEY` | (required) | From https://console.typesafe.ai/; set in the root `.env` |
+| `WEBHOOK_SECRET` | empty = no check | Must match the `x-webhook-secret` header; set in the root `.env` |
 | `MAX_AGE_MINUTES` | `10` | Skip rows older than this; `0` classifies everything |
 | `CONCURRENCY` | `4` | Jev requests in flight at once |
 | `PAGE_ORDERS` | `12` | Orders shown on the page |

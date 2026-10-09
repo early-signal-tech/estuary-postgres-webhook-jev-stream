@@ -1,0 +1,24 @@
+# CLI alternative to creating the Postgres capture in the Estuary UI. `discover` rewrites
+# this file in place, so run it on a copy in local/ (gitignored):
+#   mkdir -p local && cp capture.flow.yaml local/ && cd local
+#   flowctl discover --source capture.flow.yaml --flat   # fills in bindings + the cart_updates collection
+#   flowctl catalog publish --source capture.flow.yaml
+captures:
+  YOUR_PREFIX/jev-app:
+    endpoint:
+      connector:
+        # Latest tag: flowctl raw get --table connector_tags \
+        #   --query 'documentation_url=eq.https://go.estuary.dev/source-postgres' --query 'select=image_tag'
+        image: ghcr.io/estuary/source-postgres:v3
+        config:
+          # jev-app's ngrok TCP address, without tcp://
+          address: "4.tcp.ngrok.io:12345"
+          database: postgres
+          user: flow_capture           # created by postgres/init.sql
+          credentials:
+            auth_type: UserPassword
+            password: password
+          historyMode: false
+    # Left empty on purpose: `flowctl discover` adds a binding for public.cart_updates
+    # (the only user table in flow_publication) and writes its collection spec.
+    bindings: []
