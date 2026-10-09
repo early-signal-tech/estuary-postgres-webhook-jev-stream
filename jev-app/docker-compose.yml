@@ -1,0 +1,58 @@
+services:
+  datagen:
+    build: datagen
+    container_name: jev-datagen
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      INTERVAL_SECONDS: 5
+      # ACTIVE_ORDERS: 4          # defaults to a random 3 or 4
+      # ON_MEAL_CHANCE: 0.5      # chance each added item belongs to the order's meal
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    container_name: jev-postgres
+    hostname: postgres
+    restart: unless-stopped
+    user: postgres
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: postgres
+
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U postgres -d postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 120
+
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"   # 5432 inside the network; ngrok uses that
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: jev-ngrok
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: 'tcp postgres:5432'
+    ports:
+      - "4040:4040"

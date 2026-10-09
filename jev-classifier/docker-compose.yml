@@ -1,0 +1,25 @@
+services:
+  classifier:
+    build: app
+    container_name: jev-classifier
+    restart: unless-stopped
+
+    environment:
+      TYPESAFE_API_KEY: ${TYPESAFE_API_KEY}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      # MAX_AGE_MINUTES: 10     # skip older rows (e.g. the initial backfill); 0 = classify all
+      # CONCURRENCY: 4          # Jev requests in flight at once
+      # PAGE_ORDERS: 12         # orders shown on the page
+
+    ports:
+      - "${CLASSIFIER_PORT:-8000}:8000"
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: jev-classifier-ngrok
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: 'http classifier:8000'
+    ports:
+      - "4041:4040"   # jev-app's ngrok already uses 4040
